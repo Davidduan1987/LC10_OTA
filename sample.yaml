@@ -1,0 +1,18 @@
+sample:
+  description: Bluetooth LE LED Button service sample with single-slot DFU (MCUboot firmware loader)
+  name: Bluetooth LE LED Button service with single-slot DFU
+
+common:
+  sysbuild: true
+  build_only: true
+  tags:
+    - bluetooth
+    - dfu_single_slot
+    - sysbuild
+
+tests:
+  sample.bluetooth.peripheral_lbs.single_slot_dfu:
+    platform_allow:
+      - nrf54lc10dk/nrf54lc10a/cpuapp
+    integration_platforms:
+      - nrf54lc10dk/nrf54lc10a/cpuapp

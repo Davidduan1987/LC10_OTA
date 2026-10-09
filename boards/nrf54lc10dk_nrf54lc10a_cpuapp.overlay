@@ -1,0 +1,68 @@
+/*
+ * Copyright (c) 2026 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+
+/* Single-slot layout for nRF54LC10A (1012 KB RRAM):
+ *   mcuboot  24 KB | image-0 (application) 860 KB | image-1 (firmware loader) 116 KB |
+ *   storage 4 KB | setting_storage 8 KB (Bluetooth/settings)
+ */
+
+/delete-node/ &boot_partition;
+/delete-node/ &slot0_partition;
+/delete-node/ &slot1_partition;
+/delete-node/ &storage_partition;
+
+/ {
+	chosen {
+		zephyr,settings-partition = &setting_storage_partition;
+		/* Boot mode passed from the application to MCUboot (buttonless DFU). */
+		zephyr,boot-mode = &boot_mode0;
+	};
+};
+
+/* GPREGRET1 survives a soft reset and holds the one-byte boot mode. */
+&gpregret1 {
+	status = "okay";
+
+	boot_mode0: boot_mode@0 {
+		compatible = "zephyr,retention";
+		status = "okay";
+		reg = <0x0 0x1>;
+	};
+};
+
+&cpuapp_rram {
+	partitions {
+		boot_partition: partition@0 {
+			compatible = "zephyr,mapped-partition";
+			label = "mcuboot";
+			reg = <0x0 DT_SIZE_K(24)>;
+		};
+
+		slot0_partition: partition@6000 {
+			compatible = "zephyr,mapped-partition";
+			label = "image-0";
+			reg = <0x6000 DT_SIZE_K(860)>;
+		};
+
+		slot1_partition: partition@dd000 {
+			compatible = "zephyr,mapped-partition";
+			label = "image-1";
+			reg = <0xdd000 DT_SIZE_K(116)>;
+		};
+
+		storage_partition: partition@fa000 {
+			compatible = "zephyr,mapped-partition";
+			label = "storage";
+			reg = <0xfa000 DT_SIZE_K(4)>;
+		};
+
+		setting_storage_partition: partition@fb000 {
+			compatible = "zephyr,mapped-partition";
+			label = "setting_storage";
+			reg = <0xfb000 DT_SIZE_K(8)>;
+		};
+	};
+};
